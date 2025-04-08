@@ -1,0 +1,89 @@
+﻿@page "/counter"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+
+@using System;
+@using System.Net;
+@using System.Net.Mail;
+
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<h3>@result</h3>
+
+<h2>@x</h2>
+
+<h4>@liczba</h4>
+
+<p role="status">Current count: @currentCount</p>
+
+<input type="number" @bind="liczba" @oninput="Check">
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<button class="btn btn-primary" @onclick="SendMail">Send Mail</button>
+
+@code {
+
+    private ElementReference dialog;
+
+    int x;
+    int liczba;
+
+    string result;
+
+    protected override void OnInitialized()
+    {
+        Random random = new Random();
+        this.x = random.Next(0, 10); ;
+    }
+
+    private int currentCount = 0;
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private void Check()
+    {
+        if (this.x == this.liczba)
+        { 
+            JSRuntime.InvokeVoidAsync("showAlert", $"Zgadłeś: {this.x}!");
+
+        }
+
+        this.result = $"{x} i {liczba}";
+
+    }
+
+    private void SendMail()
+    {
+        // Konfiguracja wiadomości e-mail
+        MailMessage mail = new MailMessage();
+        mail.From = new MailAddress("mc14apps@gmail.com");
+        mail.To.Add("michalcinek14@gmail.com");
+        mail.Subject = "Testowy temat";
+        mail.Body = "Treść e-maila";
+        mail.IsBodyHtml = true; // Ustaw na true, jeśli treść zawiera HTML
+
+        // Konfiguracja SMTP
+        SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+        smtp.Credentials = new NetworkCredential("mc14apps@gmail.com", "nhck fmvw svew ydsy"); // Twoje dane logowania
+        smtp.EnableSsl = true;
+
+        try
+        {
+            smtp.Send(mail);
+            Console.WriteLine("E-mail wysłany pomyślnie.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Błąd: " + ex.Message);
+        }
+    
+    }
+
+
+}
